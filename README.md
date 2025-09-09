@@ -19,14 +19,17 @@ A complete implementation of a Scrabble engine using Monte Carlo Tree Search (MC
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/alphascrabble/alphascrabble/blob/main/colab/AlphaScrabble_Colab.ipynb)
 
-1. Open the Colab notebook
-2. Run all cells in sequence
-3. The notebook will automatically:
-   - Install dependencies
-   - Download and compile ENABLE1 lexicon
-   - Build Quackle tools
-   - Train a neural network
-   - Demonstrate gameplay
+1. **Open the Colab notebook**: [AlphaScrabble_Colab.ipynb](colab/AlphaScrabble_Colab.ipynb)
+2. **Run all cells**: The notebook will automatically:
+   - Install all dependencies
+   - Create the package structure
+   - Test all components
+   - Run performance benchmarks
+3. **Start coding**: Everything is ready to use!
+
+**Note**: The notebook creates a self-contained version of AlphaScrabble that works immediately in Colab without requiring external dependencies.
+
+See [colab/COLAB_SETUP.md](colab/COLAB_SETUP.md) for detailed setup instructions.
 
 ### Local Installation
 
