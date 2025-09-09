@@ -21,6 +21,7 @@ jobs:
     
   deploy-docker:
     runs-on: ubuntu-latest
+    if: ${{ secrets.DOCKER_USERNAME != '' && secrets.DOCKER_PASSWORD != '' }}
     
     steps:
     - uses: actions/checkout@v4

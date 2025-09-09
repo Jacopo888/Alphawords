@@ -340,6 +340,20 @@ Key metrics:
 4. Ensure all tests pass
 5. Submit a pull request
 
+### GitHub Actions Setup
+
+The CI/CD pipeline includes multiple workflows:
+
+- **✅ Simple CI**: Basic testing (always works)
+- **✅ Test Suite**: Comprehensive testing with pytest
+- **✅ Build**: Package and Docker building
+- **⚠️ Deploy**: Docker Hub deployment (requires secrets)
+- **⚠️ Release**: PyPI releases (requires secrets)
+
+**Current Status**: Basic workflows are active and working. Advanced features require GitHub secrets.
+
+See [.github/WORKFLOWS.md](.github/WORKFLOWS.md) for workflow details and [.github/SECRETS.md](.github/SECRETS.md) for secrets setup.
+
 ### Development Setup
 
 ```bash

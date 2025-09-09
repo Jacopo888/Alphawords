@@ -1,0 +1,55 @@
+# This workflow is disabled by renaming it to .disabled.yml
+# Rename back to .yml to enable it
+
+name: Disabled CI
+
+on:
+  workflow_dispatch:  # Only run manually
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+    
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y qtbase5-dev libqt5core5a build-essential cmake ninja-build
+    
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -e ".[dev]"
+    
+    - name: Lint with flake8
+      run: |
+        flake8 alphascrabble/ tests/ --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 alphascrabble/ tests/ --count --exit-zero --max-complexity=10 --max-line-length=100 --statistics
+    
+    - name: Check code formatting
+      run: |
+        black --check alphascrabble/ tests/
+        isort --check-only alphascrabble/ tests/
+    
+    - name: Type check with mypy
+      run: |
+        mypy alphascrabble/ --ignore-missing-imports
+    
+    - name: Test with pytest
+      run: |
+        pytest tests/ -v --cov=alphascrabble --cov-report=xml
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella

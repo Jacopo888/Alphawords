@@ -1,0 +1,56 @@
+name: Simple CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+        cache: 'pip'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -e .
+    
+    - name: Test imports
+      run: |
+        python -c "
+        from alphascrabble.rules.board import Board
+        from alphascrabble.rules.tiles_en import Tile, TileBag
+        from alphascrabble.nn.model import AlphaScrabbleNet
+        from alphascrabble.engine.features import FeatureExtractor
+        print('✅ All imports successful')
+        "
+    
+    - name: Test basic functionality
+      run: |
+        python -c "
+        from alphascrabble.rules.board import Board
+        from alphascrabble.rules.tiles_en import Tile, TileBag
+        
+        # Test board creation
+        board = Board()
+        print(f'✅ Board created: {len(board.grid)}x{len(board.grid[0])}')
+        
+        # Test tile bag
+        tile_bag = TileBag()
+        print(f'✅ Tile bag created: {tile_bag.tiles_remaining()} tiles')
+        
+        # Test tile placement
+        tile = Tile('A')
+        board.place_tile(tile, 7, 7)
+        print('✅ Tile placement successful')
+        "
