@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  alphascrabble:
+    build: .
+    container_name: alphascrabble
+    volumes:
+      - ./data:/app/data
+      - ./checkpoints:/app/checkpoints
+      - ./logs:/app/logs
+      - ./lexica_cache:/app/lexica_cache
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command: alphascrabble --help
+
+  tensorboard:
+    build: .
+    container_name: alphascrabble-tensorboard
+    ports:
+      - "6006:6006"
+    volumes:
+      - ./logs:/app/logs
+    command: tensorboard --logdir=/app/logs --host=0.0.0.0 --port=6006
+
+  jupyter:
+    build: .
+    container_name: alphascrabble-jupyter
+    ports:
+      - "8888:8888"
+    volumes:
+      - .:/app
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+    command: jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --notebook-dir=/app
