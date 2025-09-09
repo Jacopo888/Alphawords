@@ -10,6 +10,8 @@ A complete implementation of a Scrabble engine using Monte Carlo Tree Search (MC
 - **MCTS with PUCT**: Monte Carlo Tree Search with neural network guidance
 - **Self-Play Training**: Generate training data through self-play games
 - **CLI Interface**: Command-line tools for training, evaluation, and gameplay
+- **Web Interface**: Interactive web application for playing against AI
+- **Production Ready**: Docker deployment with Nginx, Redis, and PostgreSQL
 - **Google Colab Ready**: Complete notebook for GPU training in Colab Pro
 - **Comprehensive Tests**: Full test suite with pytest
 
@@ -31,6 +33,17 @@ A complete implementation of a Scrabble engine using Monte Carlo Tree Search (MC
 
 See [colab/COLAB_SETUP.md](colab/COLAB_SETUP.md) for detailed setup instructions.
 
+### Web Interface
+
+Start the web application for interactive gameplay:
+
+```bash
+# Start web server
+./scripts/start_web.sh
+
+# Open browser to http://localhost:5000
+```
+
 ### Local Installation
 
 ```bash
@@ -48,6 +61,17 @@ pip install -e .
 pytest tests/ -v
 ```
 
+### Production Deployment
+
+Deploy to production with Docker:
+
+```bash
+# Deploy to production
+./scripts/deploy.sh
+
+# Access at http://localhost
+```
+
 ## 📁 Project Structure
 
 ```
@@ -57,11 +81,19 @@ alphascrabble/
 │   ├── engine/             # MCTS, move generation, features
 │   ├── nn/                 # Neural network models and training
 │   ├── lexicon/            # GADDAG/DAWG lexicon interface
+│   ├── training/           # Self-play training pipeline
 │   ├── utils/              # Utilities (logging, I/O, etc.)
 │   └── cli.py              # Command-line interface
+├── web/                    # Web interface
+│   ├── app.py              # Flask web application
+│   ├── templates/          # HTML templates
+│   └── requirements.txt    # Web dependencies
 ├── cpp/                    # C++ wrapper for Quackle
 ├── colab/                  # Google Colab notebook
 ├── tests/                  # Test suite
+├── scripts/                # Utility scripts
+├── docker-compose.prod.yml # Production deployment
+├── nginx.conf              # Nginx configuration
 ├── third_party/            # Quackle source code
 └── lexica_cache/           # Compiled lexicon files
 ```
@@ -84,6 +116,24 @@ alphascrabble eval --net-a checkpoints/best_model.pt --opponent greedy --games 5
 # Play interactively against the bot
 alphascrabble play --net checkpoints/best_model.pt --human-first
 ```
+
+### Web Interface
+
+The web interface provides an interactive way to play against the AI:
+
+```bash
+# Start web server
+./scripts/start_web.sh
+
+# Open browser to http://localhost:5000
+```
+
+Features:
+- **Interactive Board**: Click to place tiles
+- **AI Opponent**: Play against the trained neural network
+- **Move Suggestions**: Get AI recommendations
+- **Real-time Scoring**: Automatic score calculation
+- **Game Statistics**: Track performance and progress
 
 ### Python API
 

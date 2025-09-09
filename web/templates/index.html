@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlphaScrabble - AI-Powered Scrabble</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .game-container {
+            display: flex;
+            gap: 30px;
+            max-width: 1400px;
+            width: 100%;
+        }
+
+        .board-section {
+            flex: 1;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .info-section {
+            width: 300px;
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(15, 1fr);
+            grid-template-rows: repeat(15, 1fr);
+            gap: 2px;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background: #2c3e50;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .cell {
+            aspect-ratio: 1;
+            background: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .cell:hover {
+            background: #d5dbdb;
+            transform: scale(1.05);
+        }
+
+        .cell.selected {
+            background: #3498db;
+            color: white;
+        }
+
+        .cell.occupied {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .cell.premium-tw {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .cell.premium-dw {
+            background: #f39c12;
+            color: white;
+        }
+
+        .cell.premium-tl {
+            background: #9b59b6;
+            color: white;
+        }
+
+        .cell.premium-dl {
+            background: #3498db;
+            color: white;
+        }
+
+        .cell.center {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .rack {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .tile {
+            width: 40px;
+            height: 40px;
+            background: #f39c12;
+            border: 2px solid #e67e22;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .tile:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .tile.selected {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .tile .score {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            font-size: 0.7rem;
+            color: #2c3e50;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #27ae60;
+            transform: translateY(-2px);
+        }
+
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #e67e22;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+
+        .info-panel {
+            margin-bottom: 20px;
+        }
+
+        .info-panel h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+
+        .score-display {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            padding: 10px;
+            background: #ecf0f1;
+            border-radius: 8px;
+        }
+
+        .player-score {
+            text-align: center;
+        }
+
+        .player-score .name {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .player-score .score {
+            font-size: 1.5rem;
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        .move-suggestions {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .suggestion {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background: #ecf0f1;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .suggestion:hover {
+            background: #d5dbdb;
+            transform: translateX(5px);
+        }
+
+        .suggestion .word {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .suggestion .score {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .status {
+            text-align: center;
+            padding: 15px;
+            background: #ecf0f1;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #3498db;
+            font-style: italic;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .game-container {
+                flex-direction: column;
+            }
+            
+            .info-section {
+                width: 100%;
+            }
+            
+            .board {
+                max-width: 400px;
+            }
+            
+            .cell {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🎯 AlphaScrabble</h1>
+        <p>AI-Powered Scrabble with Monte Carlo Tree Search</p>
+    </div>
+
+    <div class="game-container">
+        <div class="board-section">
+            <div class="board" id="board">
+                <!-- Board cells will be generated by JavaScript -->
+            </div>
+            
+            <div class="rack" id="rack">
+                <!-- Player rack will be generated by JavaScript -->
+            </div>
+            
+            <div class="controls">
+                <button class="btn btn-primary" onclick="getAIMove()">🤖 AI Move</button>
+                <button class="btn btn-success" onclick="submitMove()">✅ Submit</button>
+                <button class="btn btn-warning" onclick="clearSelection()">🔄 Clear</button>
+                <button class="btn btn-danger" onclick="newGame()">🆕 New Game</button>
+            </div>
+            
+            <div class="loading" id="loading">
+                AI is thinking... 🤔
+            </div>
+        </div>
+
+        <div class="info-section">
+            <div class="info-panel">
+                <h3>📊 Game Status</h3>
+                <div class="status" id="status">
+                    Player 1's turn
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <h3>🏆 Scores</h3>
+                <div class="score-display">
+                    <div class="player-score">
+                        <div class="name">Player 1</div>
+                        <div class="score" id="score1">0</div>
+                    </div>
+                    <div class="player-score">
+                        <div class="name">AI Player</div>
+                        <div class="score" id="score2">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <h3>💡 AI Suggestions</h3>
+                <div class="move-suggestions" id="suggestions">
+                    <div class="suggestion">
+                        <span class="word">CAT</span>
+                        <span class="score">+12</span>
+                    </div>
+                    <div class="suggestion">
+                        <span class="word">DOG</span>
+                        <span class="score">+8</span>
+                    </div>
+                    <div class="suggestion">
+                        <span class="word">HOUSE</span>
+                        <span class="score">+25</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <h3>📈 Game Stats</h3>
+                <div id="stats">
+                    <p>Moves: <span id="moveCount">0</span></p>
+                    <p>Tiles Left: <span id="tilesLeft">100</span></p>
+                    <p>Current Word: <span id="currentWord">-</span></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let gameState = {
+            board: Array(15).fill().map(() => Array(15).fill(null)),
+            currentPlayer: 0,
+            scores: [0, 0],
+            playerRack: ['A', 'B', 'C', 'D', 'E', 'F', 'G'],
+            aiRack: ['H', 'I', 'J', 'K', 'L', 'M', 'N'],
+            selectedTile: null,
+            selectedCell: null,
+            currentMove: [],
+            gameOver: false,
+            moveCount: 0,
+            tilesLeft: 100
+        };
+
+        // Initialize game
+        function initGame() {
+            createBoard();
+            updateRack();
+            updateDisplay();
+        }
+
+        // Create board
+        function createBoard() {
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+
+            for (let i = 0; i < 15; i++) {
+                for (let j = 0; j < 15; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = i;
+                    cell.dataset.col = j;
+                    
+                    // Add premium square classes
+                    if (isPremiumSquare(i, j)) {
+                        cell.classList.add(getPremiumClass(i, j));
+                    }
+                    
+                    // Center square
+                    if (i === 7 && j === 7) {
+                        cell.classList.add('center');
+                        cell.textContent = '★';
+                    }
+                    
+                    cell.addEventListener('click', () => selectCell(i, j));
+                    board.appendChild(cell);
+                }
+            }
+        }
+
+        // Check if position is premium square
+        function isPremiumSquare(row, col) {
+            const premiumSquares = [
+                // Triple word scores
+                [0, 0], [0, 7], [0, 14], [7, 0], [7, 14], [14, 0], [14, 7], [14, 14],
+                // Double word scores
+                [1, 1], [1, 13], [2, 2], [2, 12], [3, 3], [3, 11], [4, 4], [4, 10],
+                [10, 4], [10, 10], [11, 3], [11, 11], [12, 2], [12, 12], [13, 1], [13, 13],
+                // Triple letter scores
+                [1, 5], [1, 9], [5, 1], [5, 5], [5, 9], [5, 13], [9, 1], [9, 5],
+                [9, 9], [9, 13], [13, 5], [13, 9],
+                // Double letter scores
+                [0, 3], [0, 11], [2, 6], [2, 8], [3, 0], [3, 7], [3, 14], [6, 2],
+                [6, 6], [6, 8], [6, 12], [7, 3], [7, 11], [8, 2], [8, 6], [8, 8],
+                [8, 12], [11, 0], [11, 7], [11, 14], [12, 6], [12, 8], [14, 3], [14, 11]
+            ];
+            
+            return premiumSquares.some(([r, c]) => r === row && c === col);
+        }
+
+        // Get premium square class
+        function getPremiumClass(row, col) {
+            const twSquares = [[0, 0], [0, 7], [0, 14], [7, 0], [7, 14], [14, 0], [14, 7], [14, 14]];
+            const dwSquares = [[1, 1], [1, 13], [2, 2], [2, 12], [3, 3], [3, 11], [4, 4], [4, 10],
+                              [10, 4], [10, 10], [11, 3], [11, 11], [12, 2], [12, 12], [13, 1], [13, 13]];
+            const tlSquares = [[1, 5], [1, 9], [5, 1], [5, 5], [5, 9], [5, 13], [9, 1], [9, 5],
+                              [9, 9], [9, 13], [13, 5], [13, 9]];
+            const dlSquares = [[0, 3], [0, 11], [2, 6], [2, 8], [3, 0], [3, 7], [3, 14], [6, 2],
+                              [6, 6], [6, 8], [6, 12], [7, 3], [7, 11], [8, 2], [8, 6], [8, 8],
+                              [8, 12], [11, 0], [11, 7], [11, 14], [12, 6], [12, 8], [14, 3], [14, 11]];
+            
+            if (twSquares.some(([r, c]) => r === row && c === col)) return 'premium-tw';
+            if (dwSquares.some(([r, c]) => r === row && c === col)) return 'premium-dw';
+            if (tlSquares.some(([r, c]) => r === row && c === col)) return 'premium-tl';
+            if (dlSquares.some(([r, c]) => r === row && c === col)) return 'premium-dl';
+            
+            return '';
+        }
+
+        // Update rack display
+        function updateRack() {
+            const rack = document.getElementById('rack');
+            rack.innerHTML = '';
+
+            const currentRack = gameState.currentPlayer === 0 ? gameState.playerRack : gameState.aiRack;
+            
+            currentRack.forEach((letter, index) => {
+                const tile = document.createElement('div');
+                tile.className = 'tile';
+                tile.textContent = letter;
+                tile.dataset.index = index;
+                
+                const score = getTileScore(letter);
+                const scoreSpan = document.createElement('span');
+                scoreSpan.className = 'score';
+                scoreSpan.textContent = score;
+                tile.appendChild(scoreSpan);
+                
+                tile.addEventListener('click', () => selectTile(index));
+                rack.appendChild(tile);
+            });
+        }
+
+        // Get tile score
+        function getTileScore(letter) {
+            const scores = {
+                'A': 1, 'B': 3, 'C': 3, 'D': 2, 'E': 1, 'F': 4, 'G': 2, 'H': 4,
+                'I': 1, 'J': 8, 'K': 5, 'L': 1, 'M': 3, 'N': 1, 'O': 1, 'P': 3,
+                'Q': 10, 'R': 1, 'S': 1, 'T': 1, 'U': 1, 'V': 4, 'W': 4, 'X': 8,
+                'Y': 4, 'Z': 10
+            };
+            return scores[letter] || 0;
+        }
+
+        // Select tile
+        function selectTile(index) {
+            if (gameState.currentPlayer !== 0) return; // Only human player can select tiles
+            
+            // Clear previous selection
+            document.querySelectorAll('.tile.selected').forEach(t => t.classList.remove('selected'));
+            document.querySelectorAll('.cell.selected').forEach(c => c.classList.remove('selected'));
+            
+            // Select new tile
+            const tile = document.querySelector(`[data-index="${index}"]`);
+            tile.classList.add('selected');
+            
+            gameState.selectedTile = index;
+            gameState.selectedCell = null;
+        }
+
+        // Select cell
+        function selectCell(row, col) {
+            if (gameState.currentPlayer !== 0) return; // Only human player can select cells
+            if (gameState.selectedTile === null) return; // Must select tile first
+            if (gameState.board[row][col] !== null) return; // Cell already occupied
+            
+            // Clear previous cell selection
+            document.querySelectorAll('.cell.selected').forEach(c => c.classList.remove('selected'));
+            
+            // Select new cell
+            const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+            cell.classList.add('selected');
+            
+            gameState.selectedCell = { row, col };
+        }
+
+        // Submit move
+        function submitMove() {
+            if (gameState.currentPlayer !== 0) return;
+            if (gameState.selectedTile === null || gameState.selectedCell === null) {
+                alert('Please select a tile and a cell!');
+                return;
+            }
+            
+            // Place tile
+            const letter = gameState.playerRack[gameState.selectedTile];
+            gameState.board[gameState.selectedCell.row][gameState.selectedCell.col] = letter;
+            
+            // Update display
+            const cell = document.querySelector(`[data-row="${gameState.selectedCell.row}"][data-col="${gameState.selectedCell.col}"]`);
+            cell.textContent = letter;
+            cell.classList.add('occupied');
+            cell.classList.remove('selected');
+            
+            // Remove tile from rack
+            gameState.playerRack.splice(gameState.selectedTile, 1);
+            
+            // Add to current move
+            gameState.currentMove.push({
+                letter: letter,
+                row: gameState.selectedCell.row,
+                col: gameState.selectedCell.col
+            });
+            
+            // Clear selection
+            clearSelection();
+            
+            // Check if move is complete
+            if (gameState.currentMove.length > 0) {
+                // Calculate score (simplified)
+                const score = gameState.currentMove.reduce((sum, move) => sum + getTileScore(move.letter), 0);
+                gameState.scores[0] += score;
+                
+                // Switch to AI player
+                gameState.currentPlayer = 1;
+                gameState.currentMove = [];
+                gameState.moveCount++;
+                
+                updateDisplay();
+                
+                // AI move after a short delay
+                setTimeout(() => {
+                    getAIMove();
+                }, 1000);
+            }
+        }
+
+        // Get AI move
+        function getAIMove() {
+            if (gameState.currentPlayer !== 1) return;
+            
+            document.getElementById('loading').classList.add('show');
+            
+            // Simulate AI thinking
+            setTimeout(() => {
+                // Simple AI: place a random tile
+                if (gameState.aiRack.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * gameState.aiRack.length);
+                    const letter = gameState.aiRack[randomIndex];
+                    
+                    // Find empty cell
+                    let placed = false;
+                    for (let i = 0; i < 15 && !placed; i++) {
+                        for (let j = 0; j < 15 && !placed; j++) {
+                            if (gameState.board[i][j] === null) {
+                                gameState.board[i][j] = letter;
+                                
+                                // Update display
+                                const cell = document.querySelector(`[data-row="${i}"][data-col="${j}"]`);
+                                cell.textContent = letter;
+                                cell.classList.add('occupied');
+                                
+                                // Remove tile from rack
+                                gameState.aiRack.splice(randomIndex, 1);
+                                
+                                // Update score
+                                gameState.scores[1] += getTileScore(letter);
+                                
+                                placed = true;
+                            }
+                        }
+                    }
+                }
+                
+                // Switch back to human player
+                gameState.currentPlayer = 0;
+                gameState.moveCount++;
+                
+                document.getElementById('loading').classList.remove('show');
+                updateDisplay();
+            }, 2000);
+        }
+
+        // Clear selection
+        function clearSelection() {
+            gameState.selectedTile = null;
+            gameState.selectedCell = null;
+            
+            document.querySelectorAll('.tile.selected').forEach(t => t.classList.remove('selected'));
+            document.querySelectorAll('.cell.selected').forEach(c => c.classList.remove('selected'));
+        }
+
+        // New game
+        function newGame() {
+            if (confirm('Start a new game?')) {
+                gameState = {
+                    board: Array(15).fill().map(() => Array(15).fill(null)),
+                    currentPlayer: 0,
+                    scores: [0, 0],
+                    playerRack: ['A', 'B', 'C', 'D', 'E', 'F', 'G'],
+                    aiRack: ['H', 'I', 'J', 'K', 'L', 'M', 'N'],
+                    selectedTile: null,
+                    selectedCell: null,
+                    currentMove: [],
+                    gameOver: false,
+                    moveCount: 0,
+                    tilesLeft: 100
+                };
+                
+                initGame();
+            }
+        }
+
+        // Update display
+        function updateDisplay() {
+            // Update scores
+            document.getElementById('score1').textContent = gameState.scores[0];
+            document.getElementById('score2').textContent = gameState.scores[1];
+            
+            // Update status
+            const status = document.getElementById('status');
+            if (gameState.currentPlayer === 0) {
+                status.textContent = 'Your turn';
+            } else {
+                status.textContent = 'AI is thinking...';
+            }
+            
+            // Update stats
+            document.getElementById('moveCount').textContent = gameState.moveCount;
+            document.getElementById('tilesLeft').textContent = gameState.playerRack.length + gameState.aiRack.length;
+            
+            // Update rack
+            updateRack();
+        }
+
+        // Initialize game on load
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html>
